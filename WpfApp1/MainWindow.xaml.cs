@@ -368,7 +368,7 @@ namespace WpfApp1
                     RenderTransformOrigin = new Point(0.5, 0.5),
                     FontSize = 12
 
-                };
+                }; //Extra Test Comment
 
                 TextBlock EndInlinkFlow = new TextBlock
                 {
