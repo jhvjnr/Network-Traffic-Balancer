@@ -1,0 +1,46 @@
+﻿<Window x:Name="frmMain" x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        xmlns:mapcontrol="clr-namespace:MapControl"
+        mc:Ignorable="d"
+        Title="Aurecon Traffic Balancer" Height="512.36" Width="894.382" MouseUp="frmMain_MouseUp">
+
+    <DockPanel x:Name="BackPanel" LastChildFill="True" >
+        <Canvas x:Name="imageCanvas" DockPanel.Dock="Bottom" d:IsHidden="True">
+            <Canvas.RenderTransform>
+                <MatrixTransform/>
+            </Canvas.RenderTransform>
+            <Canvas x:Name="ZoomPanCanvas">
+                <Image x:Name="imgMap" Source="C:\Users\Jurie\source\repos\Network Traffic Balancer\WpfApp1\bin\Debug\BellMap.jpg" Canvas.Left="-371" Canvas.Top="-556" MouseMove="imgMap_MouseMove" MouseDown="imgMap_MouseDown" MouseUp="imgMap_MouseUp" MouseWheel="imgMap_MouseWheel" MouseRightButtonUp="imgMap_MouseRightButtonUp"/>
+            </Canvas>
+        </Canvas>
+        <mapcontrol:MapCanvas x:Name="map" d:IsHidden="False" DockPanel.Dock="Bottom" MinWidth="200" MinHeight="200" Margin="0,0,0,0.4" Height="273" >
+
+        </mapcontrol:MapCanvas>
+        <ListBox x:Name="lstOut" DockPanel.Dock="Right" HorizontalAlignment="Right" Width="200"/>
+        <Menu x:Name="menu" DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Load Intersection Flat File" Click="btnLoadIntersectionClick"/>
+                <MenuItem Header="_Exit" Click="btnExitClick"/>
+            </MenuItem>
+            <MenuItem Header="_Process">
+                <MenuItem Header ="_Assign Intersections and Approaches" Click="btnAssignIntersections"/>
+                <MenuItem Header ="_Load Numbers" Click="BtnAddNumbers"/>
+            </MenuItem>
+
+            <Label x:Name="lblTime" Content="Times:"/>
+
+            <ComboBox x:Name="cbxTimes"  Width="100" SelectionChanged="cbxTimes_SelectionChanged"/>
+
+            <Label x:Name="lblClasses" Content="Classes:"/>
+
+            <ComboBox x:Name="cbxClasses" Text="Class" Width="100" SelectionChanged="cbxClasses_SelectionChanged"/>
+        </Menu>
+        <DockPanel x:Name="NorthPanel" DockPanel.Dock="Top" Height="30" Background="White" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+        </DockPanel>
+    </DockPanel>
+</Window>
