@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace WpfApp1
@@ -14,7 +15,7 @@ namespace WpfApp1
         public Ellipse ellipse { get; set; }
         public string Name { get; set; }
         public List<Link> links { get; set; }
-
+        public Matrix matrix = new Matrix();
 
         public double SR { get => sR; set => sR = value; }
         public double SS { get => sS; set => sS = value; }
