@@ -10,10 +10,11 @@ namespace WpfApp1
     {
         public string IntersectionName { get; set; }
         public DateTime DateTime { get; set; }
-        public string Approach { get; set; }
+        public string fromApproach { get; set; }
         public string Direction { get; set; }
         public string CommuterClass { get; set; }
         public int Count { get; set; }
+        public string toApproach { get; set; }
 
         public FlatFileRecord()
         {
@@ -24,7 +25,7 @@ namespace WpfApp1
         {
             this.IntersectionName = intersectionName;
             this.DateTime = dateTime;
-            this.Approach = approach;
+            this.fromApproach = approach;
             this.Direction = direction;
             this.CommuterClass = commuterClass;
             this.Count = count;

@@ -316,6 +316,20 @@ namespace WpfApp1
 
             foreach (Intersection intersection in network.intersections)
             {
+
+                var intMatrixData = from rec in records //records.GroupBy(x => x.fromApproach).GroupBy()
+                                    where rec.IntersectionName == intersection.Name && rec.CommuterClass == (string)cbxClasses.SelectedValue && rec.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue
+                                    select rec;
+                var composingDictionary = new Dictionary<Tuple<string, string>, int>();
+
+                foreach (FlatFileRecord record in intMatrixData)
+                {
+                    composingDictionary.Add(new Tuple<string, string>(record.fromApproach, record.toApproach), record.Count);
+                }
+                
+                
+                
+                /*
                 intersection.SL = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "South" && x.Direction == "Left" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
                 intersection.SS = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "South" && x.Direction == "Straight" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
                 intersection.SR = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "South" && x.Direction == "Right" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
@@ -328,7 +342,7 @@ namespace WpfApp1
                 intersection.NL = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "North" && x.Direction == "Left" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
                 intersection.NS = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "North" && x.Direction == "Straight" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
                 intersection.NR = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "North" && x.Direction == "Right" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-
+                */
                 TextBlock westFlow = new TextBlock
                 {
                     Text = intersection.WestInFlow() + " -->>" + intersection.WestOutFlow(),
