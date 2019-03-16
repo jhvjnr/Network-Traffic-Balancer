@@ -12,17 +12,9 @@ namespace WpfApp1
     [Serializable]
     public class Intersection
     {
-        public Ellipse ellipse { get; set; }
+        public Ellipse Ellipse { get; set; }
         public string Name { get; set; }
-        public List<Link> links { get; set; }
-
-        public Matrix<double> IOMatrix { get; set; }
-            /*= DenseMatrix.OfArray(new double[,]
-        {
-            {1,2 },
-            {2,1 }
-        });*/
-
+        public List<Link> Links { get; set; }
         
 
         public Intersection()
@@ -33,8 +25,8 @@ namespace WpfApp1
         public Intersection(string name, Ellipse inputEllipse)
         {
             Name = name;
-            ellipse = inputEllipse;
-            links = new List<Link>();
+            Ellipse = inputEllipse;
+            Links = new List<Link>();
         }
     }
 }

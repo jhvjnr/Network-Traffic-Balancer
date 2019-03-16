@@ -25,6 +25,7 @@ namespace WpfApp1
         private Point initialMousePosition;
         private Point previousMousePosition;
         private Point initialImagePosition;
+        private UIElement toMove;
         private bool isMouseDown = false;
         private int clickNum = 0;
         private Point lineStart;
@@ -32,7 +33,8 @@ namespace WpfApp1
         private LinkedList<FlatFileRecord> records = new LinkedList<FlatFileRecord>();
         private RoadNetwork network = new RoadNetwork();
         private List<UIElement> renderList = new List<UIElement>();
-
+        private List<ApproachWithFan> Approaches = new List<ApproachWithFan>();
+        private double zoomFactor = 1;
 
         public MainWindow()
         {
@@ -43,6 +45,7 @@ namespace WpfApp1
         private void imgMap_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Point mousePosition = e.GetPosition(this);
+            
             frmMain.Title = "" + mousePosition.X;
             this.initialMousePosition = mousePosition;
             previousMousePosition = initialMousePosition;
@@ -53,7 +56,7 @@ namespace WpfApp1
         private void imgMap_MouseMove(object sender, MouseEventArgs e)
         {
             frmMain.Title = "mouse is moving over image";
-            if (isMouseDown)
+            if (isMouseDown && Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 Point deltaPos = new Point(e.GetPosition(this).X - previousMousePosition.X, e.GetPosition(this).Y - previousMousePosition.Y);
                 /* frmMain.Title = "Trying to move image";
@@ -67,6 +70,7 @@ namespace WpfApp1
                 matrix.Translate(deltaPos.X, deltaPos.Y);
                 layoutMatrix.Matrix = matrix;
                 previousMousePosition = e.GetPosition(this);
+                
             }
         }
 
@@ -81,7 +85,7 @@ namespace WpfApp1
 
             var layoutMatrix = imageCanvas.RenderTransform as MatrixTransform;
             var matrix = layoutMatrix.Matrix;
-            var zoomFactor = Math.Sign(e.Delta) * .05 + 1;
+            zoomFactor = Math.Sign(e.Delta) * .05 + 1;
 
             matrix.ScaleAtPrepend(zoomFactor, zoomFactor, e.GetPosition(imageCanvas).X, e.GetPosition(imageCanvas).Y);
             layoutMatrix.Matrix = matrix;
@@ -114,40 +118,175 @@ namespace WpfApp1
             Panel.SetZIndex(myCircle, 7);
             imageCanvas.Children.Add(myCircle);
 
-            network.intersections.Add(new Intersection((string)lstOut.SelectedValue, myCircle));
+            var toAdd = new Intersection((string)lstOut.SelectedValue, myCircle);
+            network.intersections.Add(toAdd);
 
             TextBlock myCircleText = new TextBlock
             {
                 Text = network.intersections.Last().Name,
                 Foreground = Brushes.White,
-                FontSize = 20
-      
+                FontSize = 20,
+                IsHitTestVisible = false
             };
 
             Canvas.SetLeft(myCircleText, e.GetPosition(imageCanvas).X + myCircle.Width / 2);
             Canvas.SetTop(myCircleText, e.GetPosition(imageCanvas).Y - myCircle.Height / 2);
             Panel.SetZIndex(myCircleText, 2);
             imageCanvas.Children.Add(myCircleText);
-
+            UpdateLayout();
             lstOut.SelectedIndex++;
             lstOut.Focus();
             if (lstOut.Items.Count > 0) frmMain.Title = network.intersections.Last().Name;
 
+
+
+            var links = records.Where(x => x.IntersectionName == toAdd.Name && x.CommuterClass == (string)cbxClasses.SelectedItem && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue);//.GroupBy(x => new { x.Direction, x.Approach });
+            if (links.Count() == 0) return;
+            var approaches = links.GroupBy(x => x.Approach).Select(g => g.First());
+            double divAngle = 360 / approaches.Count();
+            double currentAngle = 90;
+
+
+            
+            foreach (var approach in approaches)
+            {
+               // var fans = new LinkedList<ApproachWithFan>();
+                double radius = 100;
+                var startCoords = myCircle.TranslatePoint(new Point(0, 0), imageCanvas);
+                startCoords.X += myCircle.Width / 2;
+                startCoords.Y += myCircle.Height / 2;
+
+                var endCoords = new Point( startCoords.X + radius * Math.Cos((Math.PI / 180) * currentAngle), startCoords.Y + radius * Math.Sin((Math.PI / 180) * currentAngle));
+
+                Brush brush = new SolidColorBrush(ColorFromHSL(currentAngle, .5, .5));
+                
+
+                LineWithText currentApproachLine = new LineWithText((Line) DrawLineOnCanvas(imageCanvas, startCoords, endCoords, brush, 14,0), approach.Approach);
+
+                
+                currentApproachLine.Line.MouseDown += mouseDownToMoveLine;
+                
+                /*currentApproachLine.Text.MouseDown += (senderOf, args) =>
+                {
+                    Point mousePosition = e.GetPosition(this);
+                    frmMain.Title = "" + mousePosition.X;
+                    this.initialMousePosition = mousePosition;
+                    previousMousePosition = initialMousePosition;
+                    //initialLineEndPosition = new Point(currentApproachLine.Line.X2, currentApproachLine.Line.Y2);
+                    this.isMouseDown = true;
+                    this.toMove = currentApproachLine.Line;
+
+                };*/
+
+                /*(senderOf, args) =>
+                {
+                    Point mousePosition = e.GetPosition(this);
+                    frmMain.Title = "" + mousePosition.X;
+                    this.initialMousePosition = mousePosition;
+                    previousMousePosition = initialMousePosition;
+                    //initialLineEndPosition = new Point(currentApproachLine.Line.X2, currentApproachLine.Line.Y2);
+                    this.isMouseDown = true;
+                    this.toMove = currentApproachLine.Line;
+                    
+                };*/
+                //                currentApproachLine.Text.MouseDown += currentApproachLine.Line.MouseDown();
+                frmMain.MouseMove += (senderOf, args) =>
+                {
+
+                    if (isMouseDown && toMove != null)
+                    {
+                        var lineToMove = (Line)toMove;
+                        //Point deltaPos = new Point(e.GetPosition(this).X - previousMousePosition.X, e.GetPosition(this).Y - previousMousePosition.Y);
+                        double dx = e.GetPosition(imageCanvas).X - lineToMove.X1;
+                        double dy = e.GetPosition(imageCanvas).Y - lineToMove.Y1;
+                        double angle = Math.Atan2(dx, dy);
+                        lineToMove.X2 = e.GetPosition(imageCanvas).X + Math.Sin(angle) * lineToMove.StrokeThickness / 2;//+= deltaPos.X / zoomFactor;
+                        lineToMove.Y2 = e.GetPosition(imageCanvas).Y +  Math.Cos(angle) * lineToMove.StrokeThickness / 2; //+= deltaPos.Y / zoomFactor;
+                        previousMousePosition = e.GetPosition(this);
+                    }
+                };
+
+                var directions = links.Where(x => x.Approach == approach.Approach).GroupBy(x => x.Direction).Select(g => g.First());
+
+                double directionLineAngle = 0;
+                double directAngleDiv = 180 / (directions.Count() + 1);
+
+                var fanLines = new List<Direction>();
+
+                foreach (var direction in directions)
+                {
+                    radius = 10;
+                    startCoords = new Point(currentApproachLine.Line.X1 + Math.Cos((Math.PI / 180) * currentAngle) * myCircle.Width / 2, currentApproachLine.Line.Y1 + Math.Sin((Math.PI / 180) * currentAngle) * myCircle.Height / 2);
+                    var rotAngle = (Math.PI / 180) * (directionLineAngle + currentAngle + directAngleDiv + 90);
+                    endCoords = new Point(startCoords.X + radius * Math.Cos(rotAngle), startCoords.Y + radius * Math.Sin(rotAngle));
+
+
+                    directionLineAngle += directAngleDiv;
+
+
+                    Direction currentDirectionLine = new Direction(new LineWithText((Line)DrawLineOnCanvas(imageCanvas, startCoords, endCoords, brush, 4, 8), direction.Direction), direction.Count);
+                    currentDirectionLine.LineWithText.Text.Text = currentDirectionLine.Name + ": " + currentDirectionLine.Flow;
+                    fanLines.Add(currentDirectionLine);
+                    currentDirectionLine.LineWithText.Line.MouseDown += mouseDownToMoveLine;
+
+                    /* currentDirectionLine.Text.MouseDown += (senderOf, args) =>
+                     {
+                         Point mousePosition = e.GetPosition(this);
+                         frmMain.Title = "" + mousePosition.X;
+                         this.initialMousePosition = mousePosition;
+                         previousMousePosition = initialMousePosition;
+                         this.isMouseDown = true;
+                         this.toMove = currentDirectionLine.Line;
+
+                     };*/
+
+                    frmMain.MouseMove+= (o, s) =>
+                    {
+                        if (isMouseDown && toMove != null && !currentDirectionLine.LineWithText.EndSnapped)
+                        {
+                            var snapLine = GetDirectionFromLine((Line)toMove);
+                            if (snapLine != null) SnapFeather(snapLine);
+                        }
+                    };
+
+                   // currentDirectionLine.Line.MouseUp 
+
+                    frmMain.MouseMove += (senderOf, args) =>
+                    {
+                        if (isMouseDown && toMove != null)
+                        {
+                            
+                            Point deltaPos = new Point(e.GetPosition(this).X - previousMousePosition.X, e.GetPosition(this).Y - previousMousePosition.Y);
+                            ((Line)(toMove)).X2 += deltaPos.X;
+                            ((Line)(toMove)).Y2 += deltaPos.Y;
+                            previousMousePosition = e.GetPosition(this);
+                        }
+                    };
+                    
+                }
+                double approachInflow = links.Where(x => x.Approach == approach.Approach && x.IntersectionName == approach.IntersectionName).Select(x => x.Count).Sum();
+                var newApproachWithFan = new ApproachWithFan(currentApproachLine, fanLines, approachInflow);
+                newApproachWithFan.LineWithText.Text.Text = newApproachWithFan.Name + ": " + newApproachWithFan.Inflow;
+                Approaches.Add(newApproachWithFan);
+                
+                currentAngle += divAngle;
+            }
+            
             myCircle.MouseRightButtonUp += (object circle, MouseButtonEventArgs mouseEvent) =>
             {
-               ++clickNum;
-               frmMain.Title = "Delegate function hooray!";
-               
-               switch (clickNum)
-               {
-                   case 1:
-                       {
-                           lineStart = myCircle.TranslatePoint(new Point(0, 0), imageCanvas);
-                           frmMain.Title = lineStart.X + "";
-                           startIntersection = network.intersections.Single(x => x.ellipse == myCircle);
-                       }
-                       break;
-                   case 2:
+                ++clickNum;
+                frmMain.Title = "Delegate function hooray!";
+
+                switch (clickNum)
+                {
+                    case 1:
+                        {
+                            lineStart = myCircle.TranslatePoint(new Point(0, 0), imageCanvas);
+                            frmMain.Title = lineStart.X + "";
+                            startIntersection = network.intersections.Single(x => x.Ellipse == myCircle);
+                        }
+                        break;
+                    case 2:
                         {
                             var lineEnd = myCircle.TranslatePoint(new Point(0, 0), imageCanvas);
                             frmMain.Title = lineEnd.X + "";
@@ -163,30 +302,34 @@ namespace WpfApp1
                                 Y2 = lineEnd.Y + myCircle.Height / 2
                             };
 
-                            double rotationAngle = (180 / Math.PI) * Math.Atan((line.Y2 - line.Y1)/ (line.X2 - line.X1));
+                            double rotationAngle = (180 / Math.PI) * Math.Atan((line.Y2 - line.Y1) / (line.X2 - line.X1));
                             if (line.X2 - line.X1 == 0) rotationAngle = 0;
 
                             Panel.SetZIndex(line, 0);
                             imageCanvas.Children.Add(line);
 
-                            Intersection end = network.intersections.Single(x => x.ellipse == myCircle);
+                            Intersection end = network.intersections.Single(x => x.Ellipse == myCircle);
                             network.links.Add(new Link(startIntersection, end, line));
-                            startIntersection.links.Add(network.links.Last());
-                            end.links.Add(network.links.Last());
+                            startIntersection.Links.Add(network.links.Last());
+                            end.Links.Add(network.links.Last());
+
 
                             string roadName = "No common road name";
-                            string[] startNames = startIntersection.Name.Replace(" ", string.Empty).Split('-');
-                            string[] endNames = end.Name.Split('-');
-
-                           
-                            foreach (var startName in startNames)
+                            if (end.Name != null && startIntersection.Name != null)
                             {
-                                if (end.Name.Replace(" ", string.Empty).Contains(startName))
+
+                                string[] startNames = startIntersection.Name.Replace(" ", string.Empty).Split('-');
+                                string[] endNames = end.Name.Split('-');
+
+
+                                foreach (var startName in startNames)
                                 {
-                                    roadName = startName;
+                                    if (end.Name.Replace(" ", string.Empty).Contains(startName))
+                                    {
+                                        roadName = startName;
+                                    }
                                 }
                             }
-
                             TextBlock myEdgeText = new TextBlock
                             {
                                 Text = roadName, // network.links.Last().StartIntersection.Name + "-->>" + network.links.Last().EndIntersection.Name,
@@ -204,7 +347,7 @@ namespace WpfApp1
                                 CenterY = (line.Y1 + line.Y2) / 2
                             };
 
-                            
+
                             myEdgeText.LayoutTransform = lineRotation;
                             imageCanvas.Children.Add(myEdgeText);
                             UpdateLayout();
@@ -229,17 +372,19 @@ namespace WpfApp1
                             Panel.SetZIndex(myEdgeText, 2);
 
                             frmMain.Title = myEdgeText.ActualHeight + ", " + myEdgeText.DesiredSize.Height + "," + myEdgeText.Height;
-                           clickNum = 0;
+                            clickNum = 0;
 
                             // network.saveNetworkAsXML();
                             //network.saveNetworkAsBinary();
-                       } break;
-                   default:
-                       {
+                        }
+                        break;
+                    default:
+                        {
 
-                       } break;
-               }
-           };
+                        }
+                        break;
+                }
+            };
         }
 
         private static double lineLength(Line line)
@@ -314,218 +459,18 @@ namespace WpfApp1
 
             renderList = new List<UIElement>();
 
-            foreach (Intersection intersection in network.intersections)
-            {
-
-                var intMatrixData = from rec in records //records.GroupBy(x => x.fromApproach).GroupBy()
-                                    where rec.IntersectionName == intersection.Name && rec.CommuterClass == (string)cbxClasses.SelectedValue && rec.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue
-                                    select rec;
-                var composingDictionary = new Dictionary<Tuple<string, string>, int>();
-
-                foreach (FlatFileRecord record in intMatrixData)
-                {
-                    composingDictionary.Add(new Tuple<string, string>(record.fromApproach, record.toApproach), record.Count);
-                }
-                
-                
-                
-                /*
-                intersection.SL = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "South" && x.Direction == "Left" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.SS = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "South" && x.Direction == "Straight" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.SR = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "South" && x.Direction == "Right" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.EL = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "East" && x.Direction == "Left" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.ES = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "East" && x.Direction == "Straight" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.ER = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "East" && x.Direction == "Right" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.WL = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "West" && x.Direction == "Left" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.WS = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "West" && x.Direction == "Straight" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.WR = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "West" && x.Direction == "Right" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.NL = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "North" && x.Direction == "Left" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.NS = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "North" && x.Direction == "Straight" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                intersection.NR = records.Single(x => x.IntersectionName == intersection.Name && x.Approach == "North" && x.Direction == "Right" && x.CommuterClass == (string)cbxClasses.SelectedValue && x.DateTime.TimeOfDay == (TimeSpan)cbxTimes.SelectedValue).Count;
-                */
-                TextBlock westFlow = new TextBlock
-                {
-                    Text = intersection.WestInFlow() + " -->>" + intersection.WestOutFlow(),
-                    Foreground = Brushes.Black,
-                    RenderTransformOrigin = new Point(0.5, 0.5),
-                    FontSize = 12
-
-                };
-
-                //imageCanvas.Children.Add(westFlow);
-
-                Point translated =  intersection.ellipse.TranslatePoint(new Point(0, 0), imageCanvas);
-
-                Canvas.SetLeft(westFlow, translated.X);
-                Canvas.SetTop(westFlow, translated.Y);
-
-
-                UpdateLayout();
-                Panel.SetZIndex(westFlow, 4);
-            }
-
-            foreach (Link link in network.links)
-            {
-                TextBlock startInlinkFlow = new TextBlock
-                {
-                    Text = link.StartInflow() + "",// + " -->>" + link.EndOutflow() + "\r\n" + link.StartOutflow() + "-->>" + link.EndInflow(),
-                    Foreground = Brushes.Black,
-                    RenderTransformOrigin = new Point(0.5, 0.5),
-                    FontSize = 12
-                    //A Nice comment
-                };
-
-                TextBlock startOutlinkFlow = new TextBlock
-                {
-                    Text = link.StartOutflow() + "",// + " -->>" + link.EndOutflow() + "\r\n" + link.StartOutflow() + "-->>" + link.EndInflow(),
-                    Foreground = Brushes.Black,
-                    RenderTransformOrigin = new Point(0.5, 0.5),
-                    FontSize = 12
-
-                }; //Extra Test Comment
-
-                TextBlock EndInlinkFlow = new TextBlock
-                {
-                    Text = link.EndInflow() + "",// + " -->>" + link.EndOutflow() + "\r\n" + link.StartOutflow() + "-->>" + link.EndInflow(),
-                    Foreground = Brushes.Black,
-                    RenderTransformOrigin = new Point(0.5, 0.5),
-                    FontSize = 12
-
-                };
-
-                TextBlock EndOutlinkFlow = new TextBlock
-                {
-                    Text = link.EndOutflow() + "",// + " -->>" + link.EndOutflow() + "\r\n" + link.StartOutflow() + "-->>" + link.EndInflow(),
-                    Foreground = Brushes.Black,
-                    RenderTransformOrigin = new Point(0.5, 0.5),
-                    FontSize = 12
-
-                };
-
-                {
-                    Line startOutFlow = new Line();
-                    startOutFlow.Visibility = Visibility.Visible;
-                    startOutFlow.Stroke = new SolidColorBrush(Color.FromArgb(150, 0, 254, 0));
-                    var thickness = 10 * Math.Log(link.StartOutflow() / 2);
-                    if (double.IsNaN(thickness) || double.IsInfinity(thickness) || thickness < 0) thickness = 0;
-                    startOutFlow.StrokeThickness = thickness;
-                    if (double.IsNaN(startOutFlow.StrokeThickness)) startOutFlow.StrokeThickness = 0;
-                    var dx = link.Line.X2 - link.Line.X1;
-                    var dy = link.Line.Y2 - link.Line.Y1;
-
-                    startOutFlow.X1 = link.Line.X1 - thickness * Math.Sin(link.orientation()) / 2;
-                    startOutFlow.Y1 = link.Line.Y1 + thickness * Math.Cos(link.orientation()) / 2;
-                    startOutFlow.X2 = link.Line.X2 - thickness * Math.Sin(link.orientation()) / 2 - dx / 2;
-                    startOutFlow.Y2 = link.Line.Y2 + thickness * Math.Cos(link.orientation()) / 2 - dy / 2;
-
-                    imageCanvas.Children.Add(startOutFlow);
-                    renderList.Add(startOutFlow);
-                    Panel.SetZIndex(startOutFlow, 0);
-
-                    imageCanvas.Children.Add(startOutlinkFlow);
-                    renderList.Add(startOutlinkFlow);
-                    Point translated = new Point((startOutFlow.X1 + startOutFlow.X2) / 2, (startOutFlow.Y1 + startOutFlow.Y2) / 2); //intersection.ellipse.TranslatePoint(new Point(0, 0), imageCanvas);
-                    Canvas.SetLeft(startOutlinkFlow, translated.X);
-                    Canvas.SetTop(startOutlinkFlow, translated.Y);
-                    Panel.SetZIndex(startOutlinkFlow, 4);
-                }
-
-                {
-                    Line endInFlow = new Line();
-                    endInFlow.Visibility = Visibility.Visible;
-                    endInFlow.Stroke = new SolidColorBrush(Color.FromArgb(150, 254, 254, 0));
-                    var thickness = 10 * Math.Log(link.EndInflow() / 2);
-                    if (double.IsNaN(thickness) || double.IsInfinity(thickness) || thickness < 0) thickness = 0;
-                    endInFlow.StrokeThickness = thickness;
-                    if (double.IsNaN(endInFlow.StrokeThickness)) endInFlow.StrokeThickness = 0;
-                    var dx = link.Line.X2 - link.Line.X1;
-                    var dy = link.Line.Y2 - link.Line.Y1;
-
-                    endInFlow.X1 = link.Line.X1 - thickness * Math.Sin(link.orientation()) / 2 + dx / 2;
-                    endInFlow.Y1 = link.Line.Y1 + thickness * Math.Cos(link.orientation()) / 2 + dy / 2;
-                    endInFlow.X2 = link.Line.X2 - thickness * Math.Sin(link.orientation()) / 2;
-                    endInFlow.Y2 = link.Line.Y2 + thickness * Math.Cos(link.orientation()) / 2;
-
-                    imageCanvas.Children.Add(endInFlow);
-                    renderList.Add(endInFlow);
-                    Panel.SetZIndex(endInFlow, 0);
-
-                    imageCanvas.Children.Add(EndInlinkFlow);
-                    renderList.Add(EndInlinkFlow);
-                    Point translated = new Point((endInFlow.X1 + endInFlow.X2) / 2, (endInFlow.Y1 + endInFlow.Y2) / 2); //intersection.ellipse.TranslatePoint(new Point(0, 0), imageCanvas);
-                    Canvas.SetLeft(EndInlinkFlow, translated.X);
-                    Canvas.SetTop(EndInlinkFlow, translated.Y);
-                    Panel.SetZIndex(EndInlinkFlow, 4);
-                }
-
-                {
-                    Line endOutFlow = new Line();
-                    endOutFlow.Visibility = Visibility.Visible;
-                    endOutFlow.Stroke = new SolidColorBrush(Color.FromArgb(150, 0, 254, 254));
-                    var thickness = 10 * Math.Log(link.EndOutflow() / 2);
-                    if (double.IsNaN(thickness) || double.IsInfinity(thickness) || thickness < 0) thickness = 0;
-                    endOutFlow.StrokeThickness = thickness;
-                    if (double.IsNaN(endOutFlow.StrokeThickness)) endOutFlow.StrokeThickness = 0;
-                    var dx = link.Line.X2 - link.Line.X1;
-                    var dy = link.Line.Y2 - link.Line.Y1;
-
-                    endOutFlow.X1 = link.Line.X1 + thickness * Math.Sin(link.orientation()) / 2 + dx / 2;
-                    endOutFlow.Y1 = link.Line.Y1 - thickness * Math.Cos(link.orientation()) / 2 + dy / 2;
-                    endOutFlow.X2 = link.Line.X2 + thickness * Math.Sin(link.orientation()) / 2;
-                    endOutFlow.Y2 = link.Line.Y2 - thickness * Math.Cos(link.orientation()) / 2;
-
-                    imageCanvas.Children.Add(endOutFlow);
-                    renderList.Add(endOutFlow);
-                    Panel.SetZIndex(endOutFlow, 0);
-
-                    imageCanvas.Children.Add(EndOutlinkFlow);
-                    renderList.Add(EndOutlinkFlow);
-                    Point translated = new Point((endOutFlow.X1 + endOutFlow.X2) / 2, (endOutFlow.Y1 + endOutFlow.Y2) / 2); //intersection.ellipse.TranslatePoint(new Point(0, 0), imageCanvas);
-                    Canvas.SetLeft(EndOutlinkFlow, translated.X);
-                    Canvas.SetTop(EndOutlinkFlow, translated.Y);
-                    Panel.SetZIndex(EndOutlinkFlow, 4);
-                }
-
-                {
-                    Line startInflow = new Line();
-                    startInflow.Visibility = Visibility.Visible;
-                    startInflow.Stroke = new SolidColorBrush(Color.FromArgb(150, 254, 0, 125));
-                    var thickness = 10 * Math.Log(link.StartInflow() / 2);
-                    if (double.IsNaN(thickness) || double.IsInfinity(thickness) || thickness < 0) thickness = 0;
-                    startInflow.StrokeThickness = thickness;
-                    if (double.IsNaN(startInflow.StrokeThickness)) startInflow.StrokeThickness = 0;
-                    var dx = link.Line.X2 - link.Line.X1;
-                    var dy = link.Line.Y2 - link.Line.Y1;
-
-                    startInflow.X1 = link.Line.X1 + thickness * Math.Sin(link.orientation()) / 2;
-                    startInflow.Y1 = link.Line.Y1 - thickness * Math.Cos(link.orientation()) / 2;
-                    startInflow.X2 = link.Line.X2 + thickness * Math.Sin(link.orientation()) / 2 - dx / 2;
-                    startInflow.Y2 = link.Line.Y2 - thickness * Math.Cos(link.orientation()) / 2 - dy / 2;
-
-                    imageCanvas.Children.Add(startInflow);
-                    renderList.Add(startInflow);
-                    Panel.SetZIndex(startInflow, 0);
-
-                    imageCanvas.Children.Add(startInlinkFlow);
-                    renderList.Add(startInlinkFlow);
-                    Point translated = new Point((startInflow.X1 + startInflow.X2) / 2, (startInflow.Y1 + startInflow.Y2) / 2); //intersection.ellipse.TranslatePoint(new Point(0, 0), imageCanvas);
-                    Canvas.SetLeft(startInlinkFlow, translated.X);
-                    Canvas.SetTop(startInlinkFlow, translated.Y);
-                    Panel.SetZIndex(startInlinkFlow, 4);
-                }
-
+            
                 
 
 
                 UpdateLayout();
-                
-            }
+               
         }
 
 
         private Intersection GetIntersectionFromCircle(UIElement circle)
         {
-            return network.intersections.Single(x => x.ellipse == circle);
+            return network.intersections.Single(x => x.Ellipse == circle);
         }
 
         private void btnAssignIntersections(object sender, EventArgs e)
@@ -546,6 +491,221 @@ namespace WpfApp1
         private void cbxClasses_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             loadCounts();
+        }
+
+        private UIElement DrawLineOnCanvas(Canvas canvas, Point startCoords, Point endCoords, Brush brush, double thickness, int renderpriority)
+        {
+            var line = new Line
+            {
+                Visibility = Visibility.Visible,
+                StrokeThickness = thickness,
+                Stroke = brush,
+                X1 = startCoords.X,
+                Y1 = startCoords.Y,
+                X2 = endCoords.X,
+                Y2 = endCoords.Y
+            };
+
+            double rotationAngle = (180 / Math.PI) * Math.Atan((line.Y2 - line.Y1) / (line.X2 - line.X1));
+            if (line.X2 - line.X1 == 0) rotationAngle = 0;
+
+            Panel.SetZIndex(line, renderpriority);
+            canvas.Children.Add(line);
+            /*
+            TextBlock myEdgeText = new TextBlock
+            {
+                Text = text,
+                Foreground = Brushes.Black,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                FontSize = thickness - 2
+
+            };
+
+
+            var lineRotation = new RotateTransform
+            {
+                Angle = rotationAngle,
+                CenterX = (line.X1 + line.X2) / 2,
+                CenterY = (line.Y1 + line.Y2) / 2
+            };
+
+
+            myEdgeText.LayoutTransform = lineRotation;
+            canvas.Children.Add(myEdgeText);
+            UpdateLayout();
+
+            var left = (line.X1 + line.X2) / 2 - myEdgeText.DesiredSize.Width / 2;
+            var top = (line.Y1 + line.Y2) / 2 + -.5 * myEdgeText.DesiredSize.Height;
+
+            Canvas.SetLeft(myEdgeText, left);
+            Canvas.SetTop(myEdgeText, top);
+
+            Panel.SetZIndex(myEdgeText, 2);*/
+
+            return line;
+        }
+
+        Color ColorFromHSL(double H, double S, double L)
+        {
+            S = Math.Min(S, 1);
+            L = Math.Min(L, 1);
+            S = Math.Max(S, 0);
+            L = Math.Max(L, 0);
+
+            H = H % 360;
+            if (H < 0) H += 360;
+
+            var chroma = (1 - Math.Abs(2 * L - 1)) * S * 255;
+            var HPrime = H / 60;
+
+            var X = chroma * (1 - Math.Abs(HPrime % 2 - 1));
+            byte R1 = 0;
+            byte G1 = 0;
+            byte B1 = 0;
+
+            if (HPrime >= 0 && HPrime < 1)
+            {
+                R1 = (byte) chroma;
+                G1 = (byte) X;
+                B1 = 0;
+            }
+
+            if (HPrime >= 1 && HPrime < 2)
+            {
+                R1 = (byte)X;
+                G1 = (byte)chroma;
+                B1 = 0;
+            }
+
+            if (HPrime >= 2 && HPrime < 3)
+            {
+                R1 = 0;
+                G1 = (byte)chroma;
+                B1 = (byte)X;
+            }
+
+            if (HPrime >= 3 && HPrime < 4)
+            {
+                R1 = 0;
+                G1 = (byte)X;
+                B1 = (byte)chroma;
+            }
+
+            if (HPrime >= 4 && HPrime < 5)
+            {
+                R1 = (byte)X;
+                G1 = 0;
+                B1 = (byte)chroma;
+            }
+
+            if (HPrime >= 5 && HPrime < 6)
+            {
+                R1 = (byte)chroma;
+                G1 = 0;
+                B1 = (byte)X;
+            }
+
+            byte m = (byte)( (L - chroma / 2) * 255) ;
+            byte R = (byte)( R1 + m);
+            byte G = (byte)(G1 + m);
+            byte B = (byte)(B1 + m);
+
+            return Color.FromArgb(255, R, G, B);
+            //throw new NotImplementedException();
+        }
+
+        public void mouseDownToMoveLine(object o, MouseEventArgs args)
+        {
+            Point mousePosition = args.GetPosition(this);
+            frmMain.Title = "" + mousePosition.X;
+            this.initialMousePosition = mousePosition;
+            previousMousePosition = initialMousePosition;
+            //initialLineEndPosition = new Point(currentApproachLine.Line.X2, currentApproachLine.Line.Y2);
+            this.isMouseDown = true;
+            this.toMove = (UIElement)o;
+            
+            //GetDirectionFromLine((Line)o).LineWithText.EndSnapped = false;
+            DeSnapLine((Line)o);
+
+        }
+
+        public bool DeSnapLine(Line line)
+        {
+            foreach (ApproachWithFan approachWithFan in Approaches)
+            {
+                if (approachWithFan.LineWithText.Line == line)
+                {
+                    approachWithFan.LineWithText.EndSnapped = false;
+                    return true;
+                }
+                foreach (Direction direction in approachWithFan.Fan)
+                {
+                    if (direction.LineWithText.Line == line)
+                    {
+                        direction.LineWithText.EndSnapped = false;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+       /* public void SnapFans()
+        {
+            foreach (ApproachWithFan approach in Approaches)
+            {
+                foreach (LineWithText feather in approach.Fan)
+                {
+                    foreach (ApproachWithFan otherApproach in Approaches)
+                    {
+                        foreach (LineWithText otherFeather in otherApproach.Fan)
+                        {
+                            if (feather.Line.X2 - otherFeather.Line.X1 < 1 && (feather.Line.Y2 - otherFeather.Line.Y1 < 1) && feather != otherFeather)
+                            {
+                                feather.Line.X2 = otherFeather.Line.X1;
+                                feather.Line.Y2 = otherFeather.Line.Y1;
+                                feather.EndSnapped = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }*/
+
+        public Direction GetDirectionFromLine(Line line)
+        {
+            foreach (ApproachWithFan approachWithFan in Approaches)
+            {
+                foreach (Direction direction in approachWithFan.Fan)
+                {
+                    if (direction.LineWithText.Line == line) return direction;
+                }
+            }
+            return null;
+        }
+        public void SnapFeather(Direction feather)
+        {
+            foreach (ApproachWithFan otherApproach in Approaches)
+            {
+                foreach (Direction otherFeather in otherApproach.Fan)
+                {
+                    if (Math.Abs(feather.LineWithText.Line.X2 - otherFeather.LineWithText.Line.X1) < 5 && (Math.Abs(feather.LineWithText.Line.Y2 - otherFeather.LineWithText.Line.Y1) < 5) && feather != otherFeather && !(feather.LineWithText.Line.X1 == otherFeather.LineWithText.Line.X1 && feather.LineWithText.Line.Y1 == otherFeather.LineWithText.Line.Y1))
+                    {
+                        feather.LineWithText.Line.X2 = otherFeather.LineWithText.Line.X1;
+                        feather.LineWithText.Line.Y2 = otherFeather.LineWithText.Line.Y1;
+                        feather.LineWithText.EndSnapped = true;
+                        otherApproach.SnappedFeathers.Add(feather);
+                        otherApproach.LineWithText.Text.Text = "" + otherApproach.Outflow();
+                        toMove = null;
+                        isMouseDown = false;
+                        return;
+                    }
+                }
+                otherApproach.SnappedFeathers.RemoveAll(x => x == feather);
+                feather.LineWithText.EndSnapped = false;
+            }
+            feather.LineWithText.EndSnapped = false;
+            
         }
     }
 }

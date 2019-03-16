@@ -60,7 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ApproachWithFan.cs" />
+    <Compile Include="Direction.cs" />
     <Compile Include="Intersection.cs" />
+    <Compile Include="LineWithText.cs" />
     <Compile Include="Link.cs" />
     <Compile Include="RoadNetwork.cs" />
     <Compile Include="SearchErrorEventArgs.cs" />

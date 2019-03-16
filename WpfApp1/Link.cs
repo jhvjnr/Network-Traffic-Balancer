@@ -14,6 +14,9 @@ namespace WpfApp1
         public Intersection StartIntersection { get; set; }
         public Intersection EndIntersection { get; set; }
         public Line Line { get; set; }
+        public double InFlow { get; set; }
+        public double OutFlow { get; set; }
+        public string Name { get; set; }
 
         public double orientation()
         {
