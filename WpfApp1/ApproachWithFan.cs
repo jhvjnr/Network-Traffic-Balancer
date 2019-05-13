@@ -4,28 +4,184 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace WpfApp1
 {
-   public class ApproachWithFan
+   public class ApproachWithFan : UIElement
     {
         public string Name { get; set; }
+        public string ID { get; set; }
         public LineWithText LineWithText { get; set; }
+        public LineWithText OutFlowIndicator { get; set; }
+        public LineWithText InFlowIndicator { get; set; }
         public List<Direction> Fan { get; set; }
-        public List<Direction> SnappedFeathers { get; set; }
+        public HashSet<Direction> SnappedFeathers { get; set; }
         public double Inflow { get; set; }
-        public bool EndSnapped { get; set; }
-        
-        public double Outflow()
+        public double Outflow
         {
-            double sum = 0;
-            foreach (Direction d in SnappedFeathers)
+            get
             {
-                sum += d.Flow;
+                double sum = 0;
+                foreach (Direction d in SnappedFeathers)
+                {
+                    sum += d.Flow;
+                }
+                return sum;
             }
-            return sum;
+
+            set
+            {
+
+            }
+        }
+        public bool EndSnapped { get; set; }
+        public ApproachWithFan SnappedApproach { get; set; }
+
+        public ApproachWithFan()
+        {
+            Fan = new List<Direction>();
+            SnappedFeathers = new HashSet<Direction>();
         }
 
+        public void DrawIndicators()
+        {
+            var canvas = ((MainWindow)Application.Current.MainWindow).imageCanvas;
+            if (OutFlowIndicator != null && canvas.Children.Contains(OutFlowIndicator.Line))
+            {
+                canvas.Children.Remove(OutFlowIndicator.Line);
+                canvas.Children.Remove(OutFlowIndicator.Text);
+            }
+
+            if (InFlowIndicator != null && canvas.Children.Contains(InFlowIndicator.Line))
+            {
+                canvas.Children.Remove(InFlowIndicator.Line);
+                canvas.Children.Remove(InFlowIndicator.Text);
+            }
+
+            Line OutFlow = new Line();
+
+            OutFlow.Visibility = Visibility.Visible;
+
+            OutFlow.Stroke = new SolidColorBrush(Color.FromArgb(150, 0, 254, 0));
+
+            var thickness = 10 * Math.Log(Outflow / 2);
+
+            if (double.IsNaN(thickness) || double.IsInfinity(thickness) || thickness < 0) thickness = 0;
+
+            OutFlow.StrokeThickness = thickness;
+
+            if (double.IsNaN(OutFlow.StrokeThickness)) OutFlow.StrokeThickness = 0;
+
+            var dx = LineWithText.Line.X2 - LineWithText.Line.X1;
+
+            var dy = LineWithText.Line.Y2 - LineWithText.Line.Y1;
+
+
+
+            OutFlow.X2 = LineWithText.Line.X2 - thickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+
+            OutFlow.Y2 = LineWithText.Line.Y2 + thickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+
+            OutFlow.X1 = LineWithText.Line.X1 - thickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+
+            OutFlow.Y1 = LineWithText.Line.Y1 + thickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+
+            OutFlowIndicator = null;
+            OutFlowIndicator = new LineWithText(OutFlow, "" + Outflow);
+
+            canvas.Children.Add(OutFlowIndicator.Line);
+
+
+            Line InFlow = new Line();
+
+            InFlow.Visibility = Visibility.Visible;
+
+            InFlow.Stroke = new SolidColorBrush(Color.FromArgb(150, 254, 254, 0));
+
+            var inthickness = 10 * Math.Log(Inflow / 2);
+
+            if (double.IsNaN(inthickness) || double.IsInfinity(inthickness) || inthickness < 0) inthickness = 0;
+
+            InFlow.StrokeThickness = inthickness;
+
+            if (double.IsNaN(InFlow.StrokeThickness)) InFlow.StrokeThickness = 0;
+
+            dx = LineWithText.Line.X2 - LineWithText.Line.X1;
+
+            dy = LineWithText.Line.Y2 - LineWithText.Line.Y1;
+
+
+
+            InFlow.X1 = LineWithText.Line.X1 + inthickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+
+            InFlow.Y1 = LineWithText.Line.Y1 - inthickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+
+            InFlow.X2 = LineWithText.Line.X2 + inthickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+
+            InFlow.Y2 = LineWithText.Line.Y2 - inthickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+
+            InFlowIndicator = null;
+            InFlowIndicator = new LineWithText(InFlow, "" + this.Inflow);
+
+            canvas.Children.Add(InFlow);
+
+            InFlowIndicator.Line.IsHitTestVisible = false;
+            OutFlowIndicator.Line.IsHitTestVisible = false;
+            OutFlowIndicator.Text.IsHitTestVisible = false;
+            InFlowIndicator.Text.IsHitTestVisible = false;
+        }
+
+        public void UpdateVisuals()
+        {
+            Draw();
+            DrawIndicators();
+            
+            foreach (Direction dir in Fan)
+            {
+                dir.UpdateText();
+            }
+        }
+
+        public void Draw()
+        {
+            var angleDiv = 180 / (Fan.Count + 1);
+            var currentAngle = LineWithText.OrientationDEG() + 90;
+            var directionLineAngle = -90;
+            var radius = 10;
+            foreach (Direction direction in Fan)
+            {
+
+                var fanLine = direction.GetLineWithText();
+                //radius = 10;
+                var startCoords = new Point(LineWithText.Line.X1 - Math.Cos((Math.PI / 180) * currentAngle) * 50 / 2, LineWithText.Line.Y1 + Math.Sin((Math.PI / 180) * currentAngle) * 50 / 2);
+                var rotAngle = (Math.PI / 180) * (directionLineAngle - currentAngle + angleDiv);
+                Point endCoords;
+
+                if (!fanLine.EndSnapped)
+                {
+                    endCoords = new Point(fanLine.Line.X1 + radius * Math.Cos(rotAngle), fanLine.Line.Y1 + radius * Math.Sin(rotAngle));
+                }
+                else
+                {
+                    endCoords = new Point(fanLine.Line.X2, fanLine.Line.Y2);
+                }
+
+                fanLine.Line.X1 = startCoords.X;
+                fanLine.Line.Y1 = startCoords.Y;
+                fanLine.Line.X2 = endCoords.X;
+                fanLine.Line.Y2 = endCoords.Y;
+
+                foreach (Direction snappedFeather in SnappedFeathers)
+                {
+                    snappedFeather.GetLineWithText().Line.X2 = startCoords.X;
+                    snappedFeather.GetLineWithText().Line.Y2 = startCoords.Y;
+                }
+                directionLineAngle += angleDiv;
+            }
+        }
         public ApproachWithFan(LineWithText approachLine, List<Direction> fanLines, double inflow)
         {
             Name = approachLine.Text.Text;
@@ -33,46 +189,43 @@ namespace WpfApp1
             EndSnapped = false;
             LineWithText = approachLine;
             Fan = fanLines;
-            SnappedFeathers = new List<Direction>();
+            SnappedFeathers = new HashSet<Direction>();
             LineWithText.Line.SizeChanged += (o, s) =>
                  {
-                     var angleDiv = 180 / (Fan.Count + 1);
-                     var currentAngle = LineWithText.OrientationDEG() + 90;
-                     var directionLineAngle = -90;
-                     var radius = 10;
-                     foreach (Direction direction in Fan)
-                     {
-                         var fanLine = direction.LineWithText;
-                         //radius = 10;
-                         var startCoords = new Point(LineWithText.Line.X1 - Math.Cos((Math.PI / 180) * currentAngle) * 50 / 2, LineWithText.Line.Y1 + Math.Sin((Math.PI / 180) * currentAngle) * 50 / 2);
-                         var rotAngle = (Math.PI / 180) * (directionLineAngle - currentAngle + angleDiv);
-                         Point endCoords;
-
-                         if (!fanLine.EndSnapped)
-                         {
-                             endCoords = new Point(fanLine.Line.X1 + radius * Math.Cos(rotAngle), fanLine.Line.Y1 + radius * Math.Sin(rotAngle));
-                         }
-                         else
-                         {
-                             endCoords = new Point(fanLine.Line.X2, fanLine.Line.Y2);
-                         }
-
-                         fanLine.Line.X1 = startCoords.X;
-                         fanLine.Line.Y1 = startCoords.Y;
-                         fanLine.Line.X2 = endCoords.X;
-                         fanLine.Line.Y2 = endCoords.Y;
-
-                         foreach (Direction snappedFeather in SnappedFeathers)
-                         {
-                             snappedFeather.LineWithText.Line.X2 = startCoords.X;
-                             snappedFeather.LineWithText.Line.Y2 = startCoords.Y;
-                         }
-                         directionLineAngle += angleDiv;
-
-                         //LineWithText currentDirectionLine = new LineWithText((Line)DrawLineOnCanvas(imageCanvas, startCoords, endCoords, brush, 4, 8), direction.Direction);
-                     }
+                     UpdateVisuals();
+                         //LineWithText currentDirectionLine = new LineWithText((Line)DrawLineOnCanvas(imageCanvas, startCoords, endCoords, brush, 4, 8), direction.Direction)
                  };
-           
+
+            var frmMain = ((MainWindow)Application.Current.MainWindow);
+            this.LineWithText.Line.MouseDown += (o, e) =>
+            {
+                Point mousePosition = e.GetPosition(frmMain);
+                frmMain.Title = "Mouse down on Line " + mousePosition.X;
+                frmMain.initialMousePosition = mousePosition;
+                frmMain.previousMousePosition = frmMain.initialMousePosition;
+                //initialLineEndPosition = new Point(currentApproachLine.Line.X2, currentApproachLine.Line.Y2);
+                frmMain.isMouseDown = true;
+                frmMain.toMove = (UIElement)o;
+
+                //GetDirectionFromLine((Line)o).LineWithText.EndSnapped = false;
+                frmMain.DeSnapLine((Line)o);
+                frmMain.DeSnapApproach(this);
+            };
+
+            frmMain.MouseMove += (o, s) =>
+            {
+                if (frmMain.isMouseDown && frmMain.toMove != null && !this.EndSnapped)
+                {
+                    // var snapLine = GetDirectionFromLine(Intersections[toAdd.Name], (Line)toMove);
+                    //if (snapLine != null) SnapFeather(Intersections[toAdd.Name], snapLine);
+                    var toSnapApproach = frmMain.GetApproachWithFanFromLine((Line)frmMain.toMove);
+                    if (toSnapApproach != null) frmMain.SnapApproach(toSnapApproach);
+                }
+
+            };
+
         }
+
+        
     }
 }

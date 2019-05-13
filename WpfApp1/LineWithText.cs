@@ -10,14 +10,17 @@ using System.Windows.Shapes;
 
 namespace WpfApp1
 {
+   
     public class LineWithText
     {
         public Line Line { get; set; }
         public TextBlock Text { get; set; }
         public bool EndSnapped { get; set; }
 
+
         public LineWithText(Line inputLine, string text)
         {
+
             EndSnapped = false;
             Line = inputLine;
             TextBlock TextTemp = new TextBlock
@@ -26,7 +29,7 @@ namespace WpfApp1
                 Foreground = Brushes.Black,
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 IsHitTestVisible = false,
-                FontSize = Line.StrokeThickness - 1,
+                FontSize = Math.Max(Line.StrokeThickness - 1, 1),
             };
 
             this.Text = TextTemp;
@@ -47,7 +50,7 @@ namespace WpfApp1
 
                 Text.LayoutTransform = lineRotation;
                 var canvas = LogicalTreeHelper.GetParent(Line);
-                if (!((Canvas)(canvas)).IsAncestorOf(Text)) ((Canvas) (canvas)).Children.Add(Text);
+                if (!((Canvas)(canvas)).IsAncestorOf(Text)) ((Canvas)(canvas)).Children.Add(Text);
                 ((Canvas)(canvas)).UpdateLayout();
 
                 var left = (Line.X1 + Line.X2) / 2 - Text.DesiredSize.Width / 2;
@@ -56,8 +59,11 @@ namespace WpfApp1
                 Canvas.SetLeft(Text, left);
                 Canvas.SetTop(Text, top);
 
-                Panel.SetZIndex(Text, Panel.GetZIndex(Line)+1);
+                Panel.SetZIndex(Text, Panel.GetZIndex(Line) + 1);
             };
+            this.Line.Height += 1;
+
+
         }
 
 
@@ -68,6 +74,14 @@ namespace WpfApp1
             var dy = Line.Y2 - Line.Y1;
 
             return (180 / Math.PI) * Math.Atan2(dx, dy);
+        }
+
+        public double OrientationRAD()
+        {
+            var dx = Line.X2 - Line.X1;
+            var dy = Line.Y2 - Line.Y1;
+
+            return Math.Atan2(dx, dy);
         }
     }
 }

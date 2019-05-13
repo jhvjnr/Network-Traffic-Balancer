@@ -62,7 +62,14 @@
     </ApplicationDefinition>
     <Compile Include="ApproachWithFan.cs" />
     <Compile Include="Direction.cs" />
+    <Compile Include="InterApproachData.xaml.cs">
+      <DependentUpon>InterApproachData.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Intersection.cs" />
+    <Compile Include="IntersectionEditor.xaml.cs">
+      <DependentUpon>IntersectionEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="IntersectionNetwork.cs" />
     <Compile Include="LineWithText.cs" />
     <Compile Include="Link.cs" />
     <Compile Include="RoadNetwork.cs" />
@@ -72,6 +79,14 @@
     <Compile Include="Tile.cs" />
     <Compile Include="TileGenerator.cs" />
     <Compile Include="TilePanel.cs" />
+    <Page Include="InterApproachData.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="IntersectionEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="WpfApp1.IntersectionEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfApp1"
+             mc:Ignorable="d"
+             FontFamily="Segoe UI">
+    <DockPanel>
+        <TextBlock Background="White" Text="{Binding Path=IntersectionName}" DockPanel.Dock="Top" OverridesDefaultStyle="True" >
+
+        </TextBlock>
+        <!--  <FlowDocumentReader UseLayoutRounding="True" SnapsToDevicePixels="True" DockPanel.Dock="Bottom">
+            <FlowDocument FontFamily="Segoe UI">
+                <Table>
+                    <Table.Columns>
+                        <TableColumn></TableColumn>
+                        <TableColumn></TableColumn>
+                        <TableColumn></TableColumn>
+                        <TableColumn></TableColumn>
+                    </Table.Columns>
+                    <TableRowGroup>
+                        <TableRow>
+                            <TableCell BorderBrush="Black" BorderThickness="1">
+                                <Paragraph FontWeight="Bold">Approach</Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Black" BorderThickness="1">
+                                <Paragraph>Straight</Paragraph>
+                            </TableCell>
+
+                        </TableRow>
+                    </TableRowGroup>
+                </Table>
+            </FlowDocument>
+        </FlowDocumentReader>-->
+        <StackPanel>
+            <DataGrid x:Name="grdData" AutoGenerateColumns="False" CanUserAddRows="False">
+                <DataGrid.Columns >
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Inflow" Binding="{Binding Inflow}"/>
+                    <DataGridTextColumn Header="Outflow" Binding="{Binding Outflow}"/>
+                    <DataGridTemplateColumn Header="Fan">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <DataGrid ItemsSource="{Binding Fan}" AutoGenerateColumns="False" CanUserAddRows="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                                        <DataGridTextColumn Header="Count" Binding="{Binding Flow}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                </DataGrid.Columns>
+               <!-- <DataGrid.Items>
+                    <ItemContainerTemplate/>
+                    <ItemContainerTemplate/>
+                    <ItemContainerTemplate/>
+                    <ItemContainerTemplate/>
+                </DataGrid.Items>-->
+            </DataGrid>
+            <UniformGrid Rows="1">
+                <Button x:Name="btnSave" Grid.Column="1" Content="Close" Click="btnSave_Click"/>
+            </UniformGrid>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

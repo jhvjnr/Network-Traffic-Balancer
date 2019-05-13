@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace WpfApp1
 {
-    class FlatFileRecord
+    [Serializable]
+    public class FlatFileRecord
     {
         public string IntersectionName { get; set; }
         public DateTime DateTime { get; set; }
@@ -28,6 +29,19 @@ namespace WpfApp1
             this.Direction = direction;
             this.CommuterClass = commuterClass;
             this.Count = count;
+        }
+
+        public override string ToString()
+        {
+            string output = ",";
+            output += IntersectionName + ",";
+            output += DateTime.ToShortDateString() + ",";
+            output += Approach + ",";
+            output += Direction + ",";
+            output += CommuterClass + ",";
+            output += DateTime.TimeOfDay.ToString() + ",";
+            output += Count + "";
+            return output;
         }
 
     }

@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="WpfApp1.InterApproachData"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfApp1"
+             mc:Ignorable="d" 
+             >
+    <Canvas>
+        <Ellipse x:Name="BackCircle" 
+            Width ="30"
+            Height="30"
+            Stroke="Black"
+            StrokeThickness="1"
+            Fill="{Binding BackColor}"
+            MouseDown="base_MouseDown"
+            />
+
+<!--
+        <TextBlock x:Name="apr1Text" Text="&#x2799;" FontSize="50" />-->
+        <Canvas>
+            <TextBlock Text="{Binding Arrow1Text}" FontSize="3" Foreground="White" Panel.ZIndex="9" >
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform CenterX="0" CenterY="0" Angle="{Binding Text1Angle}"/>
+                        <TranslateTransform X="{Binding Text1Left}" Y="{Binding Text1Top}"/>
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+            <Polygon Fill="Black" Stroke="Black" Name="Arrow1">
+
+                <Polygon.Points>
+                    <Point X="-7.5" Y="10"></Point>
+                    <Point X="7.5" Y="10"></Point>
+                    <Point X="0" Y="-15"></Point>
+                </Polygon.Points>
+                <Polygon.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform CenterX="0" CenterY="0" Angle="{Binding Approach1Angle}"/>
+                        <TranslateTransform X="{Binding Arrow1Left}" Y="{Binding Arrow1Top}"/>
+                    </TransformGroup>
+                </Polygon.RenderTransform>
+            </Polygon>
+        </Canvas>
+        <Grid>
+            <TextBlock Text="{Binding Arrow2Text}" FontSize="3" Foreground="White" Panel.ZIndex="9">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform CenterX="0" CenterY="0" Angle="{Binding Text2Angle}"/>
+                        <TranslateTransform X="{Binding Arrow2Left}" Y="{Binding Arrow2Top}"/>
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+            <Polygon Fill="Black" Stroke="Black" Name="Arrow2">
+
+                <Polygon.Points>
+                    <Point X="-7.5" Y="10"></Point>
+                    <Point X="7.5" Y="10"></Point>
+                    <Point X="0" Y="-15"></Point>
+                </Polygon.Points>
+                <Polygon.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform CenterX="0" CenterY="0" Angle="{Binding Approach2Angle}"/>
+                        <TranslateTransform X="{Binding Arrow2Left}" Y="{Binding Arrow2Top}"/>
+                    </TransformGroup>
+                </Polygon.RenderTransform>
+            </Polygon>
+        </Grid>
+        <!-- <Line x:Name="apr1Arrow"
+              X1="50"
+              Y1="50"
+              Stroke="AliceBlue"
+              Opacity="0.5"
+              StrokeThickness="10"
+              Fill="Black"
+              Panel.ZIndex="5"
+              />-->
+    </Canvas>
+</UserControl>
