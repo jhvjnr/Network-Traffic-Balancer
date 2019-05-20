@@ -43,7 +43,7 @@ namespace WpfApp1
             }
         }
 
-        public void WriteToFile(UIElement canvas)
+        public void WriteToFile(UIElement canvas, string filename)
         {
             compileIDs();
             XmlDocument doc = new XmlDocument();
@@ -197,7 +197,14 @@ namespace WpfApp1
                 }
                 interNode.AppendChild(intApproaches);
             }
-            doc.Save("network.xml");
+            if (filename.Contains(".xml"))
+            {
+                doc.Save(filename);
+            }
+            else
+            {
+                doc.Save(filename + ".xml");
+            }
         }
 
         public static IntersectionNetwork LoadFromFile(string fileName, Canvas canvas, LinkedList<FlatFileRecord> records, MainWindow window)
@@ -248,6 +255,7 @@ namespace WpfApp1
                         
                         Point dirstartCoords = new Point(double.Parse(dirlineWithTextNode["X1"].InnerText), double.Parse(dirlineWithTextNode["Y1"].InnerText));
                         Point direndCoords = new Point(double.Parse(dirlineWithTextNode["X2"].InnerText), double.Parse(dirlineWithTextNode["Y2"].InnerText));
+                        brush = new SolidColorBrush(MainWindow.ColorFromHSL(-angle + 180, .5, .5));
                         LineWithText currentDirectionLine = new LineWithText((Line)MainWindow.DrawLineOnCanvas(canvas, dirstartCoords, direndCoords, brush, 4, 8), directionNode["Name"].InnerText);
                         
                         currentDirectionLine.EndSnapped = bool.Parse(dirlineWithTextNode["EndSnapped"].InnerText);
@@ -269,8 +277,9 @@ namespace WpfApp1
 
                  
                 }
-
+                
                 output.Intersections.Add(currentIntersection.Name, currentIntersection);
+
             }
 
 

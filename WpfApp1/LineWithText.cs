@@ -10,9 +10,11 @@ using System.Windows.Shapes;
 
 namespace WpfApp1
 {
-   
+
     public class LineWithText
     {
+
+       
         public Line Line { get; set; }
         public TextBlock Text { get; set; }
         public bool EndSnapped { get; set; }

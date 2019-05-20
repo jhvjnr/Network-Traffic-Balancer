@@ -213,7 +213,9 @@ namespace WpfApp1
             Approach2 = approach2;
             DataContext = this;
             InitializeComponent();
-            
+            var frmMain = ((MainWindow)Application.Current.MainWindow);
+
+            frmMain.InterApproachDatas.Add(this);
             /*Appr1Inflow = appr1Inflow;
             Appr2Inflow = appr2Inflow;
             Appr1Outflow = appr1Outflow;

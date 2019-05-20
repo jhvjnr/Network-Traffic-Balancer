@@ -44,6 +44,23 @@ namespace WpfApp1
         {
             Fan = new List<Direction>();
             SnappedFeathers = new HashSet<Direction>();
+
+            LineWithText.Line.SizeChanged += (o, s) =>
+            {
+                UpdateVisuals();
+                LineWithText.Line.Stroke = new SolidColorBrush(MainWindow.ColorFromHSL(90 + LineWithText.OrientationDEG(), .5, .5));
+
+
+                foreach (Direction feather in Fan)
+                {
+                    feather.LineWithText.Line.SizeChanged += (sender, args) =>
+                    {
+                        feather.LineWithText.Line.Stroke = new SolidColorBrush(MainWindow.ColorFromHSL(90 + LineWithText.OrientationDEG(), .5, .5));
+                    };
+                }
+
+                //LineWithText currentDirectionLine = new LineWithText((Line)DrawLineOnCanvas(imageCanvas, startCoords, endCoords, brush, 4, 8), direction.Direction)
+            };
         }
 
         public void DrawIndicators()
@@ -61,19 +78,19 @@ namespace WpfApp1
                 canvas.Children.Remove(InFlowIndicator.Text);
             }
 
-            Line OutFlow = new Line();
+            Line OutFlowLine = new Line();
 
-            OutFlow.Visibility = Visibility.Visible;
+            OutFlowLine.Visibility = Visibility.Visible;
 
-            OutFlow.Stroke = new SolidColorBrush(Color.FromArgb(150, 0, 254, 0));
+            OutFlowLine.Stroke = new SolidColorBrush(Color.FromArgb(150, 0, 254, 0));
 
             var thickness = 10 * Math.Log(Outflow / 2);
 
             if (double.IsNaN(thickness) || double.IsInfinity(thickness) || thickness < 0) thickness = 0;
 
-            OutFlow.StrokeThickness = thickness;
+            OutFlowLine.StrokeThickness = thickness;
 
-            if (double.IsNaN(OutFlow.StrokeThickness)) OutFlow.StrokeThickness = 0;
+            if (double.IsNaN(OutFlowLine.StrokeThickness)) OutFlowLine.StrokeThickness = 0;
 
             var dx = LineWithText.Line.X2 - LineWithText.Line.X1;
 
@@ -81,33 +98,33 @@ namespace WpfApp1
 
 
 
-            OutFlow.X2 = LineWithText.Line.X2 - thickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+            OutFlowLine.X2 = LineWithText.Line.X2 - thickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
 
-            OutFlow.Y2 = LineWithText.Line.Y2 + thickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+            OutFlowLine.Y2 = LineWithText.Line.Y2 + thickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
 
-            OutFlow.X1 = LineWithText.Line.X1 - thickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+            OutFlowLine.X1 = LineWithText.Line.X1 - thickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
 
-            OutFlow.Y1 = LineWithText.Line.Y1 + thickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+            OutFlowLine.Y1 = LineWithText.Line.Y1 + thickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
 
             OutFlowIndicator = null;
-            OutFlowIndicator = new LineWithText(OutFlow, "" + Outflow);
+            OutFlowIndicator = new LineWithText(OutFlowLine, "" + Outflow);
 
             canvas.Children.Add(OutFlowIndicator.Line);
 
 
-            Line InFlow = new Line();
+            Line InflowLine = new Line();
 
-            InFlow.Visibility = Visibility.Visible;
+            InflowLine.Visibility = Visibility.Visible;
 
-            InFlow.Stroke = new SolidColorBrush(Color.FromArgb(150, 254, 254, 0));
+            InflowLine.Stroke = new SolidColorBrush(Color.FromArgb(150, 254, 254, 0));
 
             var inthickness = 10 * Math.Log(Inflow / 2);
 
             if (double.IsNaN(inthickness) || double.IsInfinity(inthickness) || inthickness < 0) inthickness = 0;
 
-            InFlow.StrokeThickness = inthickness;
+            InflowLine.StrokeThickness = inthickness;
 
-            if (double.IsNaN(InFlow.StrokeThickness)) InFlow.StrokeThickness = 0;
+            if (double.IsNaN(InflowLine.StrokeThickness)) InflowLine.StrokeThickness = 0;
 
             dx = LineWithText.Line.X2 - LineWithText.Line.X1;
 
@@ -115,23 +132,26 @@ namespace WpfApp1
 
 
 
-            InFlow.X1 = LineWithText.Line.X1 + inthickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+            InflowLine.X1 = LineWithText.Line.X1 + inthickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
 
-            InFlow.Y1 = LineWithText.Line.Y1 - inthickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+            InflowLine.Y1 = LineWithText.Line.Y1 - inthickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
 
-            InFlow.X2 = LineWithText.Line.X2 + inthickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
+            InflowLine.X2 = LineWithText.Line.X2 + inthickness * Math.Cos(LineWithText.OrientationRAD()) / 2;
 
-            InFlow.Y2 = LineWithText.Line.Y2 - inthickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
+            InflowLine.Y2 = LineWithText.Line.Y2 - inthickness * Math.Sin(LineWithText.OrientationRAD()) / 2;
 
             InFlowIndicator = null;
-            InFlowIndicator = new LineWithText(InFlow, "" + this.Inflow);
+            InFlowIndicator = new LineWithText(InflowLine, "" + this.Inflow);
 
-            canvas.Children.Add(InFlow);
+            canvas.Children.Add(InflowLine);
 
             InFlowIndicator.Line.IsHitTestVisible = false;
             OutFlowIndicator.Line.IsHitTestVisible = false;
             OutFlowIndicator.Text.IsHitTestVisible = false;
             InFlowIndicator.Text.IsHitTestVisible = false;
+
+            Panel.SetZIndex(InflowLine, -1);
+            Panel.SetZIndex(OutFlowLine, -1);
         }
 
         public void UpdateVisuals()
@@ -193,7 +213,18 @@ namespace WpfApp1
             LineWithText.Line.SizeChanged += (o, s) =>
                  {
                      UpdateVisuals();
-                         //LineWithText currentDirectionLine = new LineWithText((Line)DrawLineOnCanvas(imageCanvas, startCoords, endCoords, brush, 4, 8), direction.Direction)
+                     LineWithText.Line.Stroke = new SolidColorBrush(MainWindow.ColorFromHSL(90 + LineWithText.OrientationDEG(), .5, .5));
+                    
+                     
+                     foreach(Direction feather in Fan)
+                     {
+                         feather.LineWithText.Line.SizeChanged += (sender, args) =>
+                         {
+                             feather.LineWithText.Line.Stroke = new SolidColorBrush(MainWindow.ColorFromHSL(90 + LineWithText.OrientationDEG(), .5, .5));
+                         };
+                     }
+                     
+                     //LineWithText currentDirectionLine = new LineWithText((Line)DrawLineOnCanvas(imageCanvas, startCoords, endCoords, brush, 4, 8), direction.Direction)
                  };
 
             var frmMain = ((MainWindow)Application.Current.MainWindow);
@@ -223,6 +254,7 @@ namespace WpfApp1
                 }
 
             };
+
 
         }
 

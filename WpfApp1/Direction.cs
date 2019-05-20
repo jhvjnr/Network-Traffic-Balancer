@@ -17,6 +17,19 @@ namespace WpfApp1
     {
         public string ID { get; set; }
         public string Name { get; set; }
+
+        public string DispName
+        {
+            get
+            {
+                return Name;
+            }
+
+            set
+            {
+
+            }
+        }
         public LineWithText LineWithText;
         private FlatFileRecord _refRecord;
        // private int _flow;
@@ -54,6 +67,19 @@ namespace WpfApp1
             }
         }
 
+        public DateTime DateTime
+        {
+            get
+            {
+                return _refRecord.DateTime;
+            }
+
+            set
+            {
+
+            }
+        }
+
         public Direction(LineWithText inputLine, int flow, FlatFileRecord record)
         {
             Name = inputLine.Text.Text;
@@ -68,6 +94,10 @@ namespace WpfApp1
 
             frmMain.MouseMove += (o, s) =>
             {
+                if (!frmMain.imageCanvas.Children.Contains(this.LineWithText.Line))
+                {
+                    return;
+                }
                 if (frmMain.isMouseDown && frmMain.toMove != null && !this.LineWithText.EndSnapped)
                 {
                     var snapLine = frmMain.GetDirectionFromLine(frmMain.network.Intersections[_refRecord.IntersectionName], (Line)frmMain.toMove);
@@ -89,6 +119,5 @@ namespace WpfApp1
         {
             LineWithText.Text.Text = Name + ": " + Flow;
         }
-
     }
 }

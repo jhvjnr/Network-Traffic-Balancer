@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Xml.Serialization;
 using MathNet.Numerics.LinearAlgebra;
@@ -44,6 +45,24 @@ namespace WpfApp1
             Approaches = new List<ApproachWithFan>();
 
             var frmMain = ((MainWindow)Application.Current.MainWindow);
+
+            frmMain.imageCanvas.UpdateLayout();
+            TextBlock myCircleText = new TextBlock
+            {
+                Text = name,
+                Foreground = Brushes.White,
+                FontSize = 20,
+                IsHitTestVisible = false
+            };
+
+            double elxPos = Ellipse.TranslatePoint(new Point(0, 0), frmMain.imageCanvas).X;
+            double elyPos = Ellipse.TranslatePoint(new Point(0, 0), frmMain.imageCanvas).Y;
+            Canvas.SetLeft(myCircleText, elxPos + Ellipse.Width / 2);
+            Canvas.SetTop(myCircleText, elyPos - Ellipse.Height / 2);
+
+            Panel.SetZIndex(myCircleText, 2);
+            frmMain.imageCanvas.Children.Add(myCircleText);
+            frmMain.UpdateLayout();
 
             Ellipse.MouseRightButtonDown += (o, s) =>
             {

@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfApp1"
              mc:Ignorable="d"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             x:Name="intEditor">
     <DockPanel>
         <TextBlock Background="White" Text="{Binding Path=IntersectionName}" DockPanel.Dock="Top" OverridesDefaultStyle="True" >
 
@@ -36,22 +37,22 @@
         <StackPanel>
             <DataGrid x:Name="grdData" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns >
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Inflow" Binding="{Binding Inflow}"/>
-                    <DataGridTextColumn Header="Outflow" Binding="{Binding Outflow}"/>
-                    <DataGridTemplateColumn Header="Fan">
+                    <DataGridTextColumn Header="Outflow" Binding="{Binding Outflow}" IsReadOnly="True"/>
+                    <DataGridTemplateColumn x:Name="FanCol" Header="Fan">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <DataGrid ItemsSource="{Binding Fan}" AutoGenerateColumns="False" CanUserAddRows="False">
+                                <DataGrid  ItemsSource="{Binding Fan}" AutoGenerateColumns="False" CanUserAddRows="False">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                                        <DataGridTextColumn Header="Name" Binding="{Binding DispName}" IsReadOnly="True"/>
                                         <DataGridTextColumn Header="Count" Binding="{Binding Flow}"/>
+                                        <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" IsReadOnly="True"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-
                 </DataGrid.Columns>
                <!-- <DataGrid.Items>
                     <ItemContainerTemplate/>

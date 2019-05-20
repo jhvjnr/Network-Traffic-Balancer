@@ -21,7 +21,17 @@ namespace WpfApp1
     public partial class IntersectionEditor : UserControl
     {
 
-        public string IntersectionName { get; set; }
+        public string IntersectionName
+        {
+            get
+            {
+                return intersection.Name;
+            }
+            set
+            {
+                
+            }
+        }
 
         private Intersection intersection;
 
@@ -46,7 +56,7 @@ namespace WpfApp1
             }
             set
             {
-                approaches = value;
+                //approaches = value;
             }
         }
 
@@ -55,6 +65,7 @@ namespace WpfApp1
             //IntersectionName = "the Name :)";//
             InitializeComponent();
             approaches = inputApproaches;
+            
             grdData.ItemsSource = approaches;
 
             DataContext = this;
@@ -64,15 +75,66 @@ namespace WpfApp1
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
-            ((Canvas)Parent).Children.Remove(this);
+           // ((Canvas)Parent).Children.Remove(this);
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
+
+            //grdData.rowv
+            var window = ((MainWindow)Application.Current.MainWindow);
+            foreach (DataGrid grid in FindVisualChildren<DataGrid>(grdData))
+            {
+                if (HasError(grid))
+                {
+                    MessageBox.Show("Please fix all invalid cells :)");
+                    return;
+                }
+            }
+
+            if (HasError(grdData) )
+            {
+                MessageBox.Show("Please fix all invalid cells :)");
+                return;
+            }
             ((Canvas)Parent).Children.Remove(this);
             foreach (ApproachWithFan approach in approaches)
             {
                 approach.UpdateVisuals();
+            }
+
+            window.RedrawInterDatas();
+        }
+
+        private bool HasError(DataGrid dg)
+        {
+            bool errors = (from c in
+                             (from object i in dg.ItemsSource
+                              select dg.ItemContainerGenerator.ContainerFromItem(i))
+                           where c != null
+                           select Validation.GetHasError(c)
+                          ).FirstOrDefault(x => x);
+            return errors;
+        }
+
+
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
             }
         }
     }

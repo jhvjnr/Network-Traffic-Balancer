@@ -14,7 +14,7 @@
             <Canvas.RenderTransform>
                 <MatrixTransform/>
             </Canvas.RenderTransform>
-            <Canvas x:Name="ZoomPanCanvas">
+            <Canvas x:Name="ZoomPanCanvas" Panel.ZIndex="-2">
                 <Image x:Name="imgMap" Source="C:\Users\Jurie\source\repos\Network Traffic Balancer\WpfApp1\bin\Debug\BellMap.jpg" Canvas.Left="-371" Canvas.Top="-556" MouseMove="imgMap_MouseMove" MouseDown="imgMap_MouseDown" MouseUp="imgMap_MouseUp" MouseWheel="imgMap_MouseWheel" MouseRightButtonUp="imgMap_MouseRightButtonUp"/>
             </Canvas>
         </Canvas>
@@ -28,6 +28,7 @@
             <MenuItem x:Name="btnExport" Header="_Export" Click="btnExport_Click"/>
             <MenuItem x:Name="btnSaveNetwork" Header="_Save network" Click="btnSaveNetwork_Click"/>
             <MenuItem x:Name="btnOpenNetwork" Header="_Open network" Click="btnOpenNetwork_Click"/>
+            <MenuItem x:Name="btnChangeBackground" Header="Change background" Click="btnChangeBackground_Click"/>
             <Label x:Name="lblTime" Content="Times:"/>
 
             <ComboBox x:Name="cbxTimes"  Width="100" SelectionChanged="cbxTimes_SelectionChanged" BorderBrush="{x:Null}" Background="White"/>
