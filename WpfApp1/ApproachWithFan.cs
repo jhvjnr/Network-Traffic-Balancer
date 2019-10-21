@@ -63,7 +63,7 @@ namespace WpfApp1
             };
         }
 
-        public void DrawIndicators()
+        public void DrawIndicators() // Draws the yellow / green bands that indicate the traffic flow volumes on the approach
         {
             var canvas = ((MainWindow)Application.Current.MainWindow).imageCanvas;
             if (OutFlowIndicator != null && canvas.Children.Contains(OutFlowIndicator.Line))
@@ -156,7 +156,7 @@ namespace WpfApp1
 
         public void UpdateVisuals()
         {
-            Draw();
+            DrawDirections();
             DrawIndicators();
             
             foreach (Direction dir in Fan)
@@ -164,8 +164,8 @@ namespace WpfApp1
                 dir.UpdateText();
             }
         }
-
-        public void Draw()
+        
+        public void DrawDirections() // redraws directions in fan
         {
             var angleDiv = 180 / (Fan.Count + 1);
             var currentAngle = LineWithText.OrientationDEG() + 90;
@@ -202,6 +202,7 @@ namespace WpfApp1
                 directionLineAngle += angleDiv;
             }
         }
+        
         public ApproachWithFan(LineWithText approachLine, List<Direction> fanLines, double inflow)
         {
             Name = approachLine.Text.Text;
@@ -235,7 +236,7 @@ namespace WpfApp1
                 frmMain.initialMousePosition = mousePosition;
                 frmMain.previousMousePosition = frmMain.initialMousePosition;
                 //initialLineEndPosition = new Point(currentApproachLine.Line.X2, currentApproachLine.Line.Y2);
-                frmMain.isMouseDown = true;
+                //frmMain.isMouseDown = true;
                 frmMain.toMove = (UIElement)o;
 
                 //GetDirectionFromLine((Line)o).LineWithText.EndSnapped = false;
@@ -245,7 +246,7 @@ namespace WpfApp1
 
             frmMain.MouseMove += (o, s) =>
             {
-                if (frmMain.isMouseDown && frmMain.toMove != null && !this.EndSnapped)
+                if (s.LeftButton == System.Windows.Input.MouseButtonState.Pressed && frmMain.toMove != null && !this.EndSnapped)
                 {
                     // var snapLine = GetDirectionFromLine(Intersections[toAdd.Name], (Line)toMove);
                     //if (snapLine != null) SnapFeather(Intersections[toAdd.Name], snapLine);

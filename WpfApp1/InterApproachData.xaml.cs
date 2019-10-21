@@ -78,7 +78,7 @@ namespace WpfApp1
         {
             get
             {
-                return Arrow1Left;// + 3 * Math.Sin(Approach1.LineWithText.OrientationRAD()); ;
+                return Arrow1Left;
             }
         }
 

@@ -19,6 +19,7 @@ namespace WpfApp1
     public class Intersection
     {
         public Ellipse Ellipse { get; set; }
+        public TextBlock Label { get; set; }
         public string ID {
             get
             {
@@ -47,7 +48,7 @@ namespace WpfApp1
             var frmMain = ((MainWindow)Application.Current.MainWindow);
 
             frmMain.imageCanvas.UpdateLayout();
-            TextBlock myCircleText = new TextBlock
+            Label = new TextBlock
             {
                 Text = name,
                 Foreground = Brushes.White,
@@ -57,11 +58,11 @@ namespace WpfApp1
 
             double elxPos = Ellipse.TranslatePoint(new Point(0, 0), frmMain.imageCanvas).X;
             double elyPos = Ellipse.TranslatePoint(new Point(0, 0), frmMain.imageCanvas).Y;
-            Canvas.SetLeft(myCircleText, elxPos + Ellipse.Width / 2);
-            Canvas.SetTop(myCircleText, elyPos - Ellipse.Height / 2);
+            Canvas.SetLeft(Label, elxPos + Ellipse.Width / 2);
+            Canvas.SetTop(Label, elyPos - Ellipse.Height / 2);
 
-            Panel.SetZIndex(myCircleText, 2);
-            frmMain.imageCanvas.Children.Add(myCircleText);
+            Panel.SetZIndex(Label, 2);
+            frmMain.imageCanvas.Children.Add(Label);
             frmMain.UpdateLayout();
 
             Ellipse.MouseRightButtonDown += (o, s) =>
@@ -70,12 +71,9 @@ namespace WpfApp1
                 var intEditor = new IntersectionEditor(frmMain.GetIntersectionFromCircle(Ellipse).Approaches);
                 var relevantIntersection = frmMain.GetIntersectionFromCircle(Ellipse);
                 intEditor.IntersectionName = relevantIntersection.Name;
-                /* foreach (ApproachWithFan approach in relevantIntersection.Approaches)
-                 {
-                     intEditor.Approaches.Add(approach);
-                 }*/
+
                 intEditor.Intersection = relevantIntersection;
-                //intEditor.Approaches = relevantIntersection.Approaches;
+                
                 frmMain.imageCanvas.Children.Add(intEditor);
                 Canvas.SetLeft(intEditor, Ellipse.TranslatePoint(new Point(0, 0), frmMain.imageCanvas).X - Ellipse.Width / 2);
                 Canvas.SetTop(intEditor, Ellipse.TranslatePoint(new Point(0, 0), frmMain.imageCanvas).Y - Ellipse.Height / 2);

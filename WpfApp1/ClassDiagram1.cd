@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="WpfApp1.App" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.ApproachWithFan" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAQgAAAoBAAAAAAAAQABQQAUAIAAAAAAIAAAAA=</HashCode>
+      <FileName>ApproachWithFan.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.Direction" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEQAAgAoBCAAAAAgAQAAAAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>Direction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.FlatFileRecord" Collapsed="true">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAgEACAAAAQAAgAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>FlatFileRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.InterApproachData" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgIEgAQAAACAQQECAAAgABoEAAEAIAAAABAAA=</HashCode>
+      <FileName>InterApproachData.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="WpfApp1.Intersection" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACEAAAgAAAAAAAAAQAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Intersection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.IntersectionEditor" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAEEAAAAAAAAAAAAAAAAEBAAAAAQBAIAAAAAAEAAAA=</HashCode>
+      <FileName>IntersectionEditor.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="WpfApp1.IntersectionNetwork" Collapsed="true">
+    <Position X="5.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAACAAAAAAAIAAAAAQEAAAAAAIAEAA=</HashCode>
+      <FileName>IntersectionNetwork.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.LineWithText" Collapsed="true">
+    <Position X="7.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAQAAAAABAAAACAgBAAA=</HashCode>
+      <FileName>LineWithText.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.Link" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAQAAAAABAAAAAAAAQAAAAAAAAAgAAAAAABAAI=</HashCode>
+      <FileName>Link.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WpfApp1.MainWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAUAAIEQAEUBIAASBAA6BNINKgAAQKDSIACCBABAk=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="WpfApp1.RoadNetwork" Collapsed="true">
+    <Position X="7.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RoadNetwork.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.BitmapStore" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQBAAAQASAAAAgAAABIASAEAAAAABAgAAAQAAAAA=</HashCode>
+      <FileName>BitmapStore.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.MapCanvas" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>WQAQAAICqIIEAoCVMAEAAAAEBBEIAAAAACEAFABYAIA=</HashCode>
+      <FileName>MapCanvas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.SearchErrorEventArgs" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SearchErrorEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.SearchProvider" Collapsed="true">
+    <Position X="2.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAWEAAAAAAACAAAAAQAAAAAIEAgAQA=</HashCode>
+      <FileName>SearchProvider.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.SearchResult" Collapsed="true">
+    <Position X="4" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAEAAgAAAAAAIAAAAAAAAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>SearchResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.Tile" Collapsed="true">
+    <Position X="7.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAABIAAABAABAAAAAAAAAAgAAAAAIAAABAAA=</HashCode>
+      <FileName>Tile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.TileGenerator" Collapsed="true">
+    <Position X="0.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAUAkAAAASAAGEAAAAAYAAYACAAAABACAAIAAAIAA=</HashCode>
+      <FileName>TileGenerator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MapControl.TilePanel" Collapsed="true">
+    <Position X="2.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAQQAQCAQAAEAACAEAACAAAIAIQAAAAAAACAAAAAAAA=</HashCode>
+      <FileName>TilePanel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ABalance.Properties.Resources" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ABalance.Properties.Settings" Collapsed="true">
+    <Position X="5.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

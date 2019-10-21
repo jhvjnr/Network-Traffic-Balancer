@@ -21,7 +21,7 @@ namespace WpfApp1
     public partial class IntersectionEditor : UserControl
     {
 
-        public string IntersectionName
+        public string IntersectionName // name of intersection being edited
         {
             get
             {
@@ -35,7 +35,7 @@ namespace WpfApp1
 
         private Intersection intersection;
 
-        public Intersection Intersection
+        public Intersection Intersection //intersection being edited
         {
             get
             {

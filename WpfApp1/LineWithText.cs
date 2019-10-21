@@ -37,7 +37,7 @@ namespace WpfApp1
             this.Text = TextTemp;
 
 
-            Line.SizeChanged += (sender, args) =>
+            Line.SizeChanged += (sender, args) => // ensures line text moves with line
             {
                 double rotationAngle = (180 / Math.PI) * Math.Atan((Line.Y2 - Line.Y1) / (Line.X2 - Line.X1));
                 if (Line.X2 - Line.X1 == 0) rotationAngle = 0;

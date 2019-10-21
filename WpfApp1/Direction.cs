@@ -98,7 +98,7 @@ namespace WpfApp1
                 {
                     return;
                 }
-                if (frmMain.isMouseDown && frmMain.toMove != null && !this.LineWithText.EndSnapped)
+                if (s.LeftButton == System.Windows.Input.MouseButtonState.Pressed && frmMain.toMove != null && !this.LineWithText.EndSnapped)
                 {
                     var snapLine = frmMain.GetDirectionFromLine(frmMain.network.Intersections[_refRecord.IntersectionName], (Line)frmMain.toMove);
                     if (snapLine != null) frmMain.SnapFeather(frmMain.network.Intersections[_refRecord.IntersectionName], snapLine);

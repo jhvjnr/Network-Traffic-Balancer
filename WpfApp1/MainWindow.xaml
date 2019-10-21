@@ -18,12 +18,13 @@
                 <Image x:Name="imgMap" Source="C:\Users\Jurie\source\repos\Network Traffic Balancer\WpfApp1\bin\Debug\BellMap.jpg" Canvas.Left="-371" Canvas.Top="-556" MouseMove="imgMap_MouseMove" MouseDown="imgMap_MouseDown" MouseUp="imgMap_MouseUp" MouseWheel="imgMap_MouseWheel" MouseRightButtonUp="imgMap_MouseRightButtonUp"/>
             </Canvas>
         </Canvas>
+
         <!--
         <mapcontrol:MapCanvas x:Name="map" d:IsHidden="False" DockPanel.Dock="Bottom" MinWidth="200" MinHeight="200" Margin="0,0,0,0.4" Height="273" >
 
         </mapcontrol:MapCanvas>-->
         <ListBox x:Name="lstOut" DockPanel.Dock="Right" HorizontalAlignment="Right" Width="200"/>
-        <Menu x:Name="menu" DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Left">
+        <Menu x:Name="menu" DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Left" Height="66">
             <MenuItem Header="_Load Intersection Flat File" Click="btnLoadIntersectionClick"/>
             <MenuItem x:Name="btnExport" Header="_Export" Click="btnExport_Click"/>
             <MenuItem x:Name="btnSaveNetwork" Header="_Save network" Click="btnSaveNetwork_Click"/>
@@ -36,6 +37,7 @@
             <Label x:Name="lblClasses" Content="Classes:"/>
 
             <ComboBox x:Name="cbxClasses" Text="Class" Width="100" SelectionChanged="cbxClasses_SelectionChanged"/>
+            <Slider x:Name="uiScaleSlider" Height="25" Width="402" Value="1" TickFrequency="0.1" Maximum="20" ValueChanged="uiScaleSlider_ValueChanged"/>
         </Menu>
         <DockPanel x:Name="NorthPanel" DockPanel.Dock="Top" Height="30" Background="White" HorizontalAlignment="Left" VerticalAlignment="Top">
 
